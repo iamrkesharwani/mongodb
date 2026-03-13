@@ -62,6 +62,46 @@ async function main() {
         $set: { isVerified: true },
       }
     );
+
+    // --- Updating / Adding tags ---
+    console.log('Managing tags...');
+    await users.updateOne(
+      { username: 'user_0' },
+      { $addToSet: { tags: 'pro' } }
+    );
+    await users.updateOne(
+      { username: 'user_0' },
+      { $addToSet: { tags: 'active' } }
+    );
+
+    // --- $unset ---
+    await users.updateOne(
+      { username: 'user_0' },
+      { $unset: { tempToken: '' } }
+    );
+    console.log('tempToken removed.');
+
+    // --- Updating User ---
+    const updatedUser: User = {
+      username: 'user_updated_0',
+      email: 'user_updated_0@email.com',
+      age: 30,
+      address: { city: 'Kharagpur', country: 'India' },
+      tags: ['reborn'],
+      loginCount: 0,
+      isVerified: true,
+    };
+    await users.replaceOne({ username: 'user_1' }, updatedUser);
+
+    const delResult = await users.deleteMany({
+      isVerified: false,
+      age: { $gt: 40 },
+    });
+    const count = await users.countDocuments({ isVerified: true });
+
+    console.log(
+      `Deleted: ${delResult.deletedCount} | Total Verified: ${count}`
+    );
   } catch (error) {
     console.error(error);
   } finally {
