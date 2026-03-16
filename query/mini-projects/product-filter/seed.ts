@@ -1,4 +1,4 @@
-import { getDb, closeDb } from '../../../../db.js';
+import { getDb, closeDb } from '../../../db.js';
 import type { Product, tagsPool } from './type.js';
 
 async function seed() {
