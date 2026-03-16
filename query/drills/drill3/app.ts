@@ -1,5 +1,5 @@
 import type { User } from './type.js';
-import { getDb, closeDb } from '../../../../db.js';
+import { getDb, closeDb } from '../../../db.js';
 
 async function run() {
   const db = await getDb('queries');

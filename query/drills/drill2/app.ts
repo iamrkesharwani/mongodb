@@ -1,4 +1,4 @@
-import { getDb, closeDb } from '../../../../db.js';
+import { getDb, closeDb } from '../../../db.js';
 import type { Product } from '../drill1/type.js';
 
 async function main() {

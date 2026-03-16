@@ -1,4 +1,4 @@
-import { getDb, closeDb } from '../../../../db.js';
+import { getDb, closeDb } from '../../../db.js';
 import type { Submission } from './type.js';
 
 async function run() {
