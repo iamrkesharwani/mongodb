@@ -1,4 +1,22 @@
 import { getDb, closeDb } from '../../../db.js';
+import { Collection } from 'mongodb';
+
+async function audit(collection: Collection, index: any) {
+  const firstKey = Object.keys(index.key)[0] as any;
+  if (firstKey === '_id') return null;
+
+  const stats = await collection
+    .find({ [firstKey]: { $exists: true } })
+    .hint(index.name)
+    .limit(100)
+    .explain('executionStats');
+
+  return {
+    time: stats.executionStats.executionTimeMillis,
+    keys: stats.executionStats.totalKeysExamined,
+    docs: stats.executionStats.totalDocsExamined,
+  };
+}
 
 async function run() {
   const db = await getDb('indexing');
@@ -17,9 +35,16 @@ async function run() {
       console.warn(`[WARNING]: '${collectionName}' has NO custom indexes.`);
     }
 
-    indexes.forEach((idx, i) => {
-      console.log(` [${i + 1}] ${idx.name}: ${JSON.stringify(idx.key)}`);
-    });
+    for (const [i, idx] of indexes.entries()) {
+      console.log(`   [${i + 1}] ${idx.name}: ${JSON.stringify(idx.key)}`);
+      const perf = await audit(collection, idx);
+      if (perf) {
+        console.log(
+          `Latency: ${perf.time}ms | Keys Scanned: ${perf.keys} | Docs Scanned: ${perf.docs}`
+        );
+      }
+      console.log('  ', '-'.repeat(40));
+    }
   }
 
   await closeDb();
